@@ -11,7 +11,7 @@ function Field({ field, value, error, onChange }) {
   const props = { id: field.name, name: field.name, value, placeholder: field.placeholder, maxLength: field.maxLength, onChange, 'aria-invalid': Boolean(error), 'aria-describedby': error ? `${field.name}-error` : undefined }
   return (
     <div className="field">
-      <div className="field-label"><label htmlFor={field.name}>{field.label} <span aria-hidden="true">*</span></label><span>{value.length.toLocaleString()} / {field.maxLength.toLocaleString()}</span></div>
+      <div className="field-label"><label htmlFor={field.name}>{field.label} {field.name === 'jobDescription' && <span aria-hidden="true">*</span>}</label><span>{value.length.toLocaleString()} / {field.maxLength.toLocaleString()}</span></div>
       {field.multiline ? <textarea {...props} rows={field.name === 'jobDescription' ? 6 : 4} /> : <input {...props} type="text" />}
       {error && <p className="field-error" id={`${field.name}-error`}>{error}</p>}
     </div>
@@ -22,7 +22,7 @@ export default function ProfileForm({ values, errors, onChange, onSubmit, onClea
   return (
     <form className="form-card" onSubmit={onSubmit} noValidate>
       <fieldset disabled={loading}>
-        <div className="section-heading"><div><span className="step">1</span><h2>LinkedIn profile</h2></div><p>Start with what you have. You can refine it later.</p></div>
+        <div className="section-heading"><div><span className="step">1</span><h2>LinkedIn profile</h2></div><p>Add at least 30 characters across these fields; each field is optional.</p></div>
         {fields.slice(0, 4).map((field) => <Field key={field.name} field={field} value={values[field.name]} error={errors[field.name]} onChange={onChange} />)}
         <div className="section-heading target-heading"><div><span className="step">2</span><h2>Career target</h2></div><p>Give your profile a direction to work towards.</p></div>
         {fields.slice(4).map((field) => <Field key={field.name} field={field} value={values[field.name]} error={errors[field.name]} onChange={onChange} />)}

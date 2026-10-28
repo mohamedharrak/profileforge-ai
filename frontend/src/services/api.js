@@ -13,7 +13,9 @@ export async function analyzeProfile(payload) {
   }
 
   if (!response.ok) {
-    throw new Error(`Analysis failed (HTTP ${response.status}). Please try again.`)
+    let message
+    try { message = (await response.json()).error } catch { /* Keep the generic message. */ }
+    throw new Error(typeof message === 'string' ? message : `Analysis failed (HTTP ${response.status}). Please try again.`)
   }
 
   let data
