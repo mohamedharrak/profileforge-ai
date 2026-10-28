@@ -32,7 +32,9 @@ function App() {
 
   async function handleSubmit(event) {
     event.preventDefault()
-    const nextErrors = Object.fromEntries(Object.entries(values).filter(([, value]) => !value.trim()).map(([name]) => [name, 'Please complete this field.']))
+    const nextErrors = {}
+    if ([values.headline, values.about, values.experience, values.skills].join(' ').trim().length < 30) nextErrors.headline = 'Provide at least 30 characters across your profile fields.'
+    if (values.jobDescription.trim().length < 30) nextErrors.jobDescription = 'Provide at least 30 characters of job description.'
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length) {
       document.getElementById(Object.keys(nextErrors)[0])?.focus()
@@ -53,7 +55,7 @@ function App() {
     }
   }
 
-  return <div id="top"><Header demoMode={demoMode} onDemoChange={handleModeChange} disabled={loading} /><main className="page"><div className="intro"><div><div className="intro-label"><span /> YOUR PROFILE WORKSPACE</div><h1>Make your profile<br /><span>work for you.</span></h1><p>Turn your experience into a LinkedIn profile that speaks to your next opportunity.</p></div><div className="intro-aside"><span className="aside-icon">✧</span><div><strong>Made for your next move</strong><p>Thoughtful suggestions, tailored to the role you want.</p></div></div></div><div className="workspace"><div><div className="column-heading"><div><h2>Your profile</h2><p>Tell us about yourself and the role you're aiming for.</p></div><span className="required-note">* Required</span></div><ProfileForm values={values} errors={errors} onChange={handleChange} onSubmit={handleSubmit} onClear={handleClear} onLoadDemo={handleLoadDemo} loading={loading} /></div><AnalysisDashboard result={result} loading={loading} error={error} /></div></main><footer><span>✦ &nbsp;ProfileForge AI</span><span>Built for the next step in your career.</span></footer></div>
+  return <div id="top"><Header demoMode={demoMode} onDemoChange={handleModeChange} disabled={loading} /><main className="page"><div className="intro"><div><div className="intro-label"><span /> YOUR PROFILE WORKSPACE</div><h1>Make your profile<br /><span>work for you.</span></h1><p>Turn your experience into a LinkedIn profile that speaks to your next opportunity.</p></div><div className="intro-aside"><span className="aside-icon">✧</span><div><strong>Made for your next move</strong><p>Thoughtful suggestions, tailored to the role you want.</p></div></div></div><div className="workspace"><div><div className="column-heading"><div><h2>Your profile</h2><p>Tell us about yourself and the role you're aiming for.</p></div><span className="required-note">Profile details and job description required</span></div><ProfileForm values={values} errors={errors} onChange={handleChange} onSubmit={handleSubmit} onClear={handleClear} onLoadDemo={handleLoadDemo} loading={loading} /></div><AnalysisDashboard result={result} loading={loading} error={error} /></div></main><footer><span>✦ &nbsp;ProfileForge AI</span><span>Built for the next step in your career.</span></footer></div>
 }
 
 export default App
