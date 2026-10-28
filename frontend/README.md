@@ -1,16 +1,13 @@
-# React + Vite
+# ProfileForge AI frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Run locally
 
-Currently, two official plugins are available:
+From this directory, run `npm install` and then `npm run dev`. Open the URL printed by Vite.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Enable **Demo Mode**, select **Load demo data**, and analyze to see fixed example results without a backend. Demo results are illustrative and do not analyze the entered text.
 
-## React Compiler
+For live analysis, disable Demo Mode and run the separately developed backend. The frontend sends `POST /api/analyze` to `http://localhost:3001` by default. Set `VITE_API_BASE_URL` in a frontend `.env.local` file to use another backend base URL, then restart Vite. This variable is public browser configuration; never put secrets in it. The backend must allow requests from the frontend origin (CORS).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+All fields are required. The job title is included in `jobDescription`, while the profile fields are combined into `profileText`. The response must contain nonempty `headline` and `about` strings and `skillGaps` and `suggestions` arrays of strings. Skills shown as present are taken from the user's skills field; missing evidence does not establish a lack of qualifications.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Run `npm run lint` and `npm run build` to validate the frontend.

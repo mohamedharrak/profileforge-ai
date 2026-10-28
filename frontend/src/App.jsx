@@ -1,122 +1,59 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import Header from './components/Header'
+import ProfileForm from './components/ProfileForm'
+import AnalysisDashboard from './components/AnalysisDashboard'
+import { demoProfile } from './data/demoData'
+import { analyzeProfile } from './services/api'
+import { analyzeDemo } from './services/mockApi'
 import './App.css'
 
+const emptyProfile = { headline: '', about: '', experience: '', skills: '', jobTitle: '', jobDescription: '' }
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [values, setValues] = useState(emptyProfile)
+  const [errors, setErrors] = useState({})
+  const [demoMode, setDemoMode] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState('')
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+  function handleChange(event) {
+    const { name, value } = event.target
+    setValues((previous) => ({ ...previous, [name]: value }))
+    setErrors((previous) => ({ ...previous, [name]: '' }))
+    setResult(null)
+    setError('')
+  }
 
-      <div className="ticks"></div>
+  function resetResults() { setResult(null); setError('') }
+  function handleClear() { setValues(emptyProfile); setErrors({}); resetResults() }
+  function handleLoadDemo() { setValues({ ...demoProfile }); setErrors({}); resetResults() }
+  function handleModeChange(value) { setDemoMode(value); resetResults() }
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+  async function handleSubmit(event) {
+    event.preventDefault()
+    const nextErrors = Object.fromEntries(Object.entries(values).filter(([, value]) => !value.trim()).map(([name]) => [name, 'Please complete this field.']))
+    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length) {
+      document.getElementById(Object.keys(nextErrors)[0])?.focus()
+      return
+    }
+    setLoading(true)
+    resetResults()
+    const profile = { ...values }
+    const profileText = `Headline: ${profile.headline}\n\nAbout: ${profile.about}\n\nExperience: ${profile.experience}\n\nSkills: ${profile.skills}`
+    const jobDescription = `Target job title: ${profile.jobTitle}\n\n${profile.jobDescription}`
+    try {
+      const data = demoMode ? await analyzeDemo() : await analyzeProfile({ profileText, jobDescription })
+      setResult({ data, profile, demo: demoMode, id: Date.now() })
+    } catch (caught) {
+      setError(caught.message || 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+  return <div id="top"><Header demoMode={demoMode} onDemoChange={handleModeChange} disabled={loading} /><main className="page"><div className="intro"><div><div className="intro-label"><span /> YOUR PROFILE WORKSPACE</div><h1>Make your profile<br /><span>work for you.</span></h1><p>Turn your experience into a LinkedIn profile that speaks to your next opportunity.</p></div><div className="intro-aside"><span className="aside-icon">✧</span><div><strong>Made for your next move</strong><p>Thoughtful suggestions, tailored to the role you want.</p></div></div></div><div className="workspace"><div><div className="column-heading"><div><h2>Your profile</h2><p>Tell us about yourself and the role you're aiming for.</p></div><span className="required-note">* Required</span></div><ProfileForm values={values} errors={errors} onChange={handleChange} onSubmit={handleSubmit} onClear={handleClear} onLoadDemo={handleLoadDemo} loading={loading} /></div><AnalysisDashboard result={result} loading={loading} error={error} /></div></main><footer><span>✦ &nbsp;ProfileForge AI</span><span>Built for the next step in your career.</span></footer></div>
 }
 
 export default App
