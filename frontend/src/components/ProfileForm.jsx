@@ -1,4 +1,6 @@
 const fields = [
+  { name: 'name', label: 'Name', placeholder: 'Your name', maxLength: 200 },
+  { name: 'profileUrl', label: 'LinkedIn profile URL (optional)', placeholder: 'Paste your profile URL', maxLength: 500 },
   { name: 'headline', label: 'Headline', placeholder: 'e.g. Software developer building thoughtful digital products', maxLength: 220 },
   { name: 'about', label: 'About', placeholder: 'Tell us about your background, strengths, and what drives you.', multiline: true, maxLength: 3000 },
   { name: 'experience', label: 'Experience', placeholder: 'Share your roles, responsibilities, projects, and achievements.', multiline: true, maxLength: 5000 },
@@ -18,16 +20,19 @@ function Field({ field, value, error, onChange }) {
   )
 }
 
-export default function ProfileForm({ values, errors, onChange, onSubmit, onClear, onLoadDemo, loading }) {
+export default function ProfileForm({ values, errors, onChange, onSubmit, onClear, onLoadDemo, loading, onConnect, connectionMessage }) {
   return (
     <form className="form-card" onSubmit={onSubmit} noValidate>
       <fieldset disabled={loading}>
         <div className="section-heading"><div><span className="step">1</span><h2>LinkedIn profile</h2></div><p>Add at least 30 characters across these fields; each field is optional.</p></div>
-        {fields.slice(0, 4).map((field) => <Field key={field.name} field={field} value={values[field.name]} error={errors[field.name]} onChange={onChange} />)}
+        <button className="button secondary" type="button" onClick={onConnect}>Connect LinkedIn</button>
+        <p className="form-note">With your consent, import your name from your own LinkedIn account. Paste your URL, headline, About, experience, and skills yourself; a URL is not fetched.</p>
+        <p className="form-note" role="status">{connectionMessage}</p>
+        {fields.slice(0, 6).map((field) => <Field key={field.name} field={field} value={values[field.name] ?? ''} error={errors[field.name]} onChange={onChange} />)}
         <div className="section-heading target-heading"><div><span className="step">2</span><h2>Career target</h2></div><p>Give your profile a direction to work towards.</p></div>
-        {fields.slice(4).map((field) => <Field key={field.name} field={field} value={values[field.name]} error={errors[field.name]} onChange={onChange} />)}
+        {fields.slice(6).map((field) => <Field key={field.name} field={field} value={values[field.name]} error={errors[field.name]} onChange={onChange} />)}
         <div className="form-actions"><button className="button primary" type="submit">✦ &nbsp;{loading ? 'Analyzing profile…' : 'Analyze profile'}</button><button className="button secondary" type="button" onClick={onClear}>Clear form</button><button className="text-button" type="button" onClick={onLoadDemo}>Load demo data</button></div>
-        <p className="form-note">Your profile and job description are sent to the configured backend in live mode.</p>
+        <p className="form-note">Only when you choose Analyze, Live Mode sends the submitted profile and job description to the configured AI provider. Demo Mode uses fixed examples.</p>
       </fieldset>
     </form>
   )

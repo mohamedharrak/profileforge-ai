@@ -7,7 +7,7 @@ ProfileForge AI helps job seekers improve a pasted LinkedIn profile for a target
 - React + Vite frontend: profile and target-job form, before/after comparisons, copy buttons, validation, loading and error states.
 - Explicit Demo Mode shows fixed examples without contacting the backend. Live Mode never falls back to examples.
 - Express API sends the submitted text and selected LinkedIn Profile Optimizer instructions to Google GenAI in one model request, then validates the response.
-- The application uses pasted text only. It does not scrape, modify or publish to LinkedIn and does not persist submitted profiles in an application database.
+- Optional LinkedIn connection imports the signed-in member's name with consent. Paste the profile URL and profile details manually; URLs are not fetched. The application does not scrape, modify or publish to LinkedIn and does not persist submitted profiles in an application database.
 
 ## Setup
 
@@ -42,12 +42,21 @@ Backend `.env` (never commit it):
 - `AI_MODEL`: a Gemini model supporting system instructions and JSON structured output; `gemini-3.5-flash-lite` is the example and was tested with an available key. Availability and quotas depend on the Google project. Gemma is not assumed to support these features.
 - `PORT`: optional, defaults to `3001`.
 - `FRONTEND_ORIGIN`: optional exact additional origin for a separately hosted frontend. Localhost and 127.0.0.1 development origins with ports are allowed.
+- `LINKEDIN_CLIENT_ID`: LinkedIn application client ID.
+- `LINKEDIN_CLIENT_SECRET`: server-side LinkedIn application client secret.
+- `LINKEDIN_REDIRECT_URI`: exact registered backend callback URL ending in `/api/linkedin/callback`.
 
 Frontend `.env`:
 
 - `VITE_API_BASE_URL`: API origin; defaults to `http://localhost:3001`. Never put an API key in frontend environment variables.
 
 Changing backend environment settings requires restarting the backend; restart Vite after frontend environment changes.
+
+## Connect LinkedIn
+
+In the LinkedIn Developer Portal, configure an application with the **Sign in with LinkedIn using OpenID Connect** product and register the exact callback URL. Set `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_REDIRECT_URI`, and `FRONTEND_ORIGIN` on the backend; `FRONTEND_ORIGIN` must be the exact frontend origin. HTTPS is required except for localhost or 127.0.0.1 development. Allow popups to connect. The app requests only `openid` and `profile` and imports the name returned by the official userinfo endpoint. It does not import a profile URL, headline, About, experience or skills. Paste those details yourself, whether or not LinkedIn access is configured. No imported data is sent to the AI provider until you choose Analyze. In Live Mode, analysis sends the submitted data to the configured AI provider.
+
+LinkedIn product access and valid credentials are required for a real connection. OAuth state is held in backend memory for ten minutes and is lost on restart; a single server instance is required. See [LinkedIn's OpenID Connect documentation](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2) and [authorization code flow](https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow).
 
 ## API
 

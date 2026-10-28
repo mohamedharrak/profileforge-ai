@@ -1,4 +1,6 @@
 const baseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001').replace(/\/+$/, '')
+export const linkedInStartUrl = `${baseUrl}/api/linkedin/start`
+export const apiOrigin = new URL(baseUrl, window.location.href).origin
 
 export async function analyzeProfile(payload) {
   let response

@@ -3,15 +3,17 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import { analyze } from './ai.js'
 import { fileURLToPath } from 'node:url'
+import { createLinkedInRouter } from './linkedin.js'
 
 dotenv.config({ path: fileURLToPath(new URL('./.env', import.meta.url)), quiet: true })
-export function createApp(analyzer = analyze) {
+export function createApp(analyzer = analyze, linkedInConfig = process.env, linkedInFetch = fetch) {
   const app = express()
   app.use(cors({ origin(origin, callback) {
     if (!origin || /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin) || (process.env.FRONTEND_ORIGIN && origin === process.env.FRONTEND_ORIGIN)) return callback(null, true)
     return callback(null, false)
   } }))
   app.use(express.json({ limit: '32kb' }))
+  app.use('/api/linkedin', createLinkedInRouter(express, linkedInConfig, linkedInFetch))
   app.get('/api/health', (_req, res) => res.json({ status: 'ok' }))
   app.post('/api/analyze', async (req, res) => {
     const { profileText, jobDescription } = req.body || {}
